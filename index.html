@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Letter with Confetti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fdf6f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+        }
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #fdf6f0;
+            z-index: 9999;
+        }
+        .loader-heart {
+            font-size: 60px;
+            color: #ff4081;
+            animation: heartBeat 1s infinite;
+            margin: 0 10px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            background: transparent; /* Make background transparent */
+            box-shadow: none; /* Remove shadow to make it fully transparent */
+            position: relative;
+            opacity: 0.9; /* Adjust opacity to make it slightly transparent */
+            color: white; /* Set text color to white */
+            transform: translateY(20px);
+            animation: fadeIn 2s ease-out 2s forwards;
+            z-index: 1;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif; /* Use beautiful font */
+            color: white; /* Set header text color to white */
+            text-align: center;
+            font-size: 3em; /* Increase font size for emphasis */
+            margin: 0;
+            padding: 10px;
+            border-bottom: 2px solid #ff6f61; /* Add border to header */
+            font-style: italic; /* Italicize header text */
+            animation: slideIn 1s ease-out 2s forwards;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: white; /* Set paragraph text color to white */
+            font-style: italic; /* Italicize paragraph text */
+            animation: fadeInUp 1s ease-out 2.5s forwards;
+        }
+        .highlight {
+            color: #ff4081;
+            font-weight: bold;
+        }
+        .signature {
+            text-align: right;
+            font-size: 20px;
+            color: white; /* Set signature text color to white */
+            margin-top: 30px;
+            font-style: italic; /* Italicize signature text */
+            animation: fadeInUp 1s ease-out 3s forwards;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #777;
+            animation: fadeInUp 1s ease-out 3.5s forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="loader-heart">❤️</div>
+        <div class="loader-heart">💖</div>
+        <div class="loader-heart">💕</div>
+    </div>
+    <div class="container">
+        <h1>My Dearest Love 💌</h1>
+        <p>
+            From the moment our paths first crossed, <span class="highlight">my heart</span> knew that it had found something extraordinary. Your presence fills my life with <span class="highlight">joy</span> and <span class="highlight">meaning</span>, and every day spent with you is a precious gift. 🌟
+        </p>
+        <p>
+            Your smile is my <span class="highlight">sunshine</span>, your laughter my <span class="highlight">music</span>. I cherish every moment, every glance, and every touch that we share. With you, <span class="highlight">time</span> seems to stand still, allowing us to bask in the <span class="highlight">beauty</span> of our love. 🌹
+        </p>
+        <p>
+            As we continue this journey together, know that my love for you grows stronger with each passing day. You are my <span class="highlight">soulmate</span>, my best friend, and the <span class="highlight">love</span> of my life. ❤️🐻💐
+        </p>
+        <p class="signature">
+            Forever Yours,<br>
+            Meghana
+        </p>
+        <div class="footer">
+            Created with ❤️ by Chaitanya
+        </div>
+    </div>
+    <canvas id="confettiCanvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Initialize Three.js scene
+        const canvas = document.getElementById('confettiCanvas');
+        const renderer = new THREE.WebGLRenderer({ canvas });
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        // Set up the camera
+        camera.position.z = 50;
+
+        // Create a canvas to draw the <3 text
+        const textCanvas = document.createElement('canvas');
+        const ctx = textCanvas.getContext('2d');
+        textCanvas.width = 100;
+        textCanvas.height = 100;
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 40px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('💗', 50, 50);
+
+        // Create texture from canvas
+        const texture = new THREE.CanvasTexture(textCanvas);
+
+        // Confetti particles
+        const confettiCount = 500;
+        const particles = [];
+        const material = new THREE.SpriteMaterial({ map: texture, color: 0xff4081 });
+
+        // Create particles
+        for (let i = 0; i < confettiCount; i++) {
+            const particle = new THREE.Sprite(material);
+
+            particle.scale.set(2, 2, 1); // Reduce size
+            particle.position.x = Math.random() * 100 - 50;
+            particle.position.y = Math.random() * 100 - 50;
+            particle.position.z = Math.random() * 100 - 50;
+
+            particle.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02); // Slower speed
+            scene.add(particle);
+            particles.push(particle);
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update particles
+            particles.forEach(particle => {
+                particle.position.add(particle.velocity);
+
+                if (particle.position.x > 50 || particle.position.x < -50) particle.velocity.x *= -1;
+                if (particle.position.y > 50 || particle.position.y < -50) particle.velocity.y *= -1;
+                if (particle.position.z > 50 || particle.position.z < -50) particle.velocity.z *= -1;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // Set up the renderer
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+        // Start animation
+        animate();
+
+        // Remove the loader after the animations are complete
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelector('.loader-container').style.display = 'none';
+            }, 2000); // Matches the loader animation duration
+        });
+    </script>
+</body>
+</html>
